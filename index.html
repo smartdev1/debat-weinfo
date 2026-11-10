@@ -56,7 +56,7 @@ input[type=range]{width:100%}
 .circ-line{left:680px;top:310px;width:660px;height:660px;border-radius:50%;border:4px solid var(--blue);background:transparent}
 
 .logo-txt{left:160px;top:48px;font-weight:800;font-size:64px;line-height:1;letter-spacing:-1px;white-space:nowrap}
-.logo-txt b{position:static;color:var(--blue)}
+#stage .logo-txt b{position:static;color:var(--blue)}
 .logo-tag{left:163px;top:116px;font-size:23px;font-weight:500;white-space:nowrap}
 
 #p-title{left:58px;top:200px;font-weight:800;font-size:96px;line-height:1.1;letter-spacing:-1px;white-space:nowrap;display:inline-block}
@@ -64,7 +64,7 @@ input[type=range]{width:100%}
 .pill{background:var(--blue);color:#fff;border-radius:999px}
 #p-specwrap{left:50px;top:332px;width:456px;height:78px;display:flex;align-items:center;justify-content:center}
 #p-spec{position:static;font-size:31px;white-space:nowrap;font-weight:400;letter-spacing:.3px}
-#p-spec b{font-weight:800}
+#stage #p-spec b{position:static;font-weight:800}
 
 .qwrap{left:30px;top:426px;width:470px;height:250px}
 .qmark{left:0;top:-14px;font-size:84px;line-height:1;color:var(--blue);font-weight:800;font-family:'Poppins',sans-serif}
@@ -81,7 +81,7 @@ input[type=range]{width:100%}
 .vbar{left:137px;top:858px;width:2px;height:52px;background:var(--navy)}
 #p-invite{left:165px;top:858px;width:360px;font-size:20px;font-weight:500;line-height:1.4;color:#1a2a55}
 
-.photo-box{left:500px;top:120px;width:422px;height:912px}
+.photo-box{left:510px;top:120px;width:412px;height:912px;overflow:hidden}
 #p-photo{left:50%;bottom:0;height:100%;width:auto;max-width:none;transform-origin:50% 100%}
 
 .bar{left:45px;top:938px;width:777px;height:90px;border-radius:45px;background:#0a2b6e;box-shadow:0 6px 18px rgba(0,0,0,.18)}
@@ -95,20 +95,20 @@ input[type=range]{width:100%}
 #p-time{position:static;display:block;font-size:44px;font-weight:800;line-height:1.05;white-space:nowrap}
 #p-tz{position:static;display:block;font-size:18px;font-weight:600;line-height:1.1}
 
-.footer{left:0;top:1030px;width:922px;height:122px;background:#fff}
+.footer{left:0;top:1028px;width:922px;height:124px;background:#fff}
 .footer .fline{left:50px;top:9px;width:830px;height:1px;background:var(--blue);opacity:.55}
 .wa{left:50px;top:17px;height:26px;padding:0 10px 0 8px;border:1px solid var(--blue);border-radius:13px;display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--navy);white-space:nowrap}
-.wa svg{position:static}
+#stage .wa svg{position:static}
 #p-qr{left:52px;top:47px;width:62px;height:62px;background:#fff;object-fit:contain}
 .scan{left:148px;top:58px;height:27px;padding:0 14px;display:flex;align-items:center;font-size:12px;font-weight:700;border-radius:14px}
 .scanarrow{left:120px;top:60px;width:24px;height:20px}
 .fdiv{top:25px;width:1px;height:80px;background:#9fb0d0}
 .ct{left:303px;width:260px;height:32px;display:flex;align-items:center;gap:10px;font-size:12.5px;font-weight:500;color:var(--navy)}
-.ct .ic{position:static;width:30px;height:30px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;flex:none}
-.ct span.t{position:static;white-space:nowrap}
-.tags{left:540px;top:20px;width:260px;display:flex;gap:10px;align-items:center}
-.tag{position:static;display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:var(--navy);white-space:nowrap}
-.tag svg{position:static}
+#stage .ct .ic{position:static;width:30px;height:30px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;flex:none}
+#stage .ct span.t{position:static;white-space:nowrap}
+.tags{left:540px;top:20px;width:260px;display:flex;gap:10px;align-items:center;z-index:2}
+#stage .tag{position:static;display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:var(--navy);white-space:nowrap}
+#stage .tag svg{position:static}
 .tag + .tag{border-left:1px solid #9fb0d0;padding-left:8px}
 .swoosh{left:560px;top:1040px;width:362px;height:112px}
 #p-slogan{left:788px;top:1098px;width:130px;font-family:'Caveat',cursive;font-weight:700;font-size:22px;line-height:1;color:#fff;transform:rotate(-9deg);text-align:center}
@@ -304,7 +304,7 @@ function save() {
 
 /* Silhouette par défaut (remplacée dès qu'une photo est importée) */
 const PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 900"><g fill="#6f93d6" opacity=".55"><circle cx="210" cy="190" r="110"/><path d="M0 900V560c0-90 70-150 150-165h120c80 15 150 75 150 165v340z"/></g></svg>');
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 900"><g fill="#9bb3d9" opacity=".7"><circle cx="210" cy="190" r="110"/><path d="M0 900V560c0-90 70-150 150-165h120c80 15 150 75 150 165v340z"/></g></svg>');
 
 /* ---------- Outils ---------- */
 const TAG_ICONS = [
@@ -435,6 +435,7 @@ $('#photoFile').addEventListener('change', e => readFile(e.target.files[0], url 
 $('#photoClear').addEventListener('click', () => { S.photo = ''; render(); save(); });
 $('#qrFile').addEventListener('change', e => readFile(e.target.files[0], url => { S.qrImg = url; render(); save(); }));
 $('#qrClear').addEventListener('click', () => { S.qrImg = ''; render(); save(); });
+
 
 /* ---------- Export PNG ---------- */
 $('#btnPng').addEventListener('click', async () => {
