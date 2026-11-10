@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>We.info – Générateur d'affiche « Le Débat »</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Caveat:wght@700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+:root{--navy:#0c2a63;--blue:#1e6bdc;--bg:#eef1f6;--panel:#fff;--line:#d9dfeb;--text:#1a2540}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Poppins',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+.app{display:grid;grid-template-columns:420px 1fr;min-height:100vh}
+@media(max-width:1000px){.app{grid-template-columns:1fr}}
+
+/* ---------- PANNEAU ---------- */
+.panel{background:var(--panel);border-right:1px solid var(--line);padding:20px;overflow-y:auto;max-height:100vh}
+@media(max-width:1000px){.panel{max-height:none;border-right:0;border-bottom:1px solid var(--line)}}
+.panel h1{font-size:18px;margin:0 0 4px;color:var(--navy)}
+.panel .sub{font-size:12px;color:#6b7690;margin:0 0 16px}
+fieldset{border:1px solid var(--line);border-radius:10px;margin:0 0 14px;padding:12px 14px 14px}
+legend{font-size:12px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;padding:0 6px}
+label{display:block;font-size:12px;font-weight:600;margin:10px 0 4px;color:#44506b}
+label:first-of-type{margin-top:2px}
+input[type=text],input[type=date],input[type=time],input[type=url]{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:13px}
+input:focus,.editor:focus{outline:2px solid var(--blue);outline-offset:-1px}
+input[type=range]{width:100%}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.toolbar{display:flex;flex-wrap:wrap;gap:4px;padding:6px;border:1px solid var(--line);border-bottom:0;border-radius:8px 8px 0 0;background:#f6f8fc}
+.toolbar button{min-width:30px;height:30px;border:1px solid transparent;background:transparent;border-radius:6px;cursor:pointer;font:inherit;font-size:13px;color:var(--text)}
+.toolbar button:hover{background:#e3e9f6;border-color:var(--line)}
+.toolbar .sep{width:1px;background:var(--line);margin:2px 3px}
+.swatch{width:22px!important;min-width:22px!important;height:22px!important;border-radius:50%!important;border:2px solid #fff!important;box-shadow:0 0 0 1px var(--line);align-self:center}
+.toolbar input[type=color]{width:30px;height:30px;padding:0;border:0;background:none;cursor:pointer}
+.editor{min-height:110px;padding:10px;border:1px solid var(--line);border-radius:0 0 8px 8px;font-size:15px;line-height:1.4;background:#fff}
+.hint{font-size:11px;color:#7a859e;margin:6px 0 0}
+.btns{display:flex;gap:10px;margin-top:6px}
+.btn{flex:1;padding:11px 14px;border:0;border-radius:10px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;background:var(--blue);color:#fff}
+.btn.sec{background:#e6ebf5;color:var(--navy)}
+.btn:hover{filter:brightness(1.08)}
+.filebtn{display:inline-block;padding:8px 12px;border:1px dashed var(--blue);border-radius:8px;color:var(--blue);font-weight:600;font-size:12px;cursor:pointer}
+.filebtn input{display:none}
+.small-link{background:none;border:0;color:#c0392b;font-size:12px;cursor:pointer;margin-left:8px;padding:0}
+
+/* ---------- APERÇU ---------- */
+.preview{display:flex;justify-content:center;align-items:flex-start;padding:20px;overflow:auto}
+.scaler{position:relative;box-shadow:0 10px 40px rgba(12,42,99,.18)}
+
+/* ---------- AFFICHE (922 x 1152) ---------- */
+#stage{position:absolute;left:0;top:0;width:922px;height:1152px;overflow:hidden;background:#f7f8fb;transform-origin:top left;font-family:'Poppins',sans-serif;color:var(--navy)}
+#stage *{position:absolute;margin:0;box-sizing:border-box}
+#stage .nopos{position:static}
+.circ{left:600px;top:220px;width:760px;height:760px;border-radius:50%;background:#0d2f73}
+.circ-line{left:680px;top:310px;width:660px;height:660px;border-radius:50%;border:4px solid var(--blue);background:transparent}
+
+.logo-txt{left:160px;top:48px;font-weight:800;font-size:64px;line-height:1;letter-spacing:-1px;white-space:nowrap}
+.logo-txt b{position:static;color:var(--blue)}
+.logo-tag{left:163px;top:116px;font-size:23px;font-weight:500;white-space:nowrap}
+
+#p-title{left:58px;top:200px;font-weight:800;font-size:96px;line-height:1.1;letter-spacing:-1px;white-space:nowrap;display:inline-block}
+.ul1{left:60px;top:314px;width:105px;height:3px;background:var(--blue)}
+.pill{background:var(--blue);color:#fff;border-radius:999px}
+#p-specwrap{left:50px;top:332px;width:456px;height:78px;display:flex;align-items:center;justify-content:center}
+#p-spec{position:static;font-size:31px;white-space:nowrap;font-weight:400;letter-spacing:.3px}
+#p-spec b{font-weight:800}
+
+.qwrap{left:30px;top:426px;width:470px;height:250px}
+.qmark{left:0;top:-14px;font-size:84px;line-height:1;color:var(--blue);font-weight:800;font-family:'Poppins',sans-serif}
+#p-subject{left:44px;top:0;width:420px;height:250px;overflow:hidden;font-weight:700;font-size:50px;line-height:1.16;color:var(--navy)}
+#p-subject > *{position:static;display:block}
+#p-subject > :last-child::after{content:" »";color:var(--blue);font-weight:800}
+#p-subject *{position:static}
+
+.ul2{left:60px;top:684px;width:62px;height:3px;background:var(--blue)}
+.modlabel{left:57px;top:704px;height:38px;padding:0 20px;display:flex;align-items:center;font-size:19px;font-weight:700;letter-spacing:1.5px}
+#p-name{left:60px;top:752px;font-size:40px;font-weight:800;line-height:1.1;white-space:nowrap;display:inline-block}
+#p-nick{left:60px;top:798px;font-size:30px;font-weight:600;line-height:1.2;white-space:nowrap;display:inline-block}
+.chat{left:57px;top:856px;width:56px;height:52px}
+.vbar{left:137px;top:858px;width:2px;height:52px;background:var(--navy)}
+#p-invite{left:165px;top:858px;width:360px;font-size:20px;font-weight:500;line-height:1.4;color:#1a2a55}
+
+.photo-box{left:500px;top:120px;width:422px;height:912px}
+#p-photo{left:50%;bottom:0;height:100%;width:auto;max-width:none;transform-origin:50% 100%}
+
+.bar{left:45px;top:938px;width:777px;height:90px;border-radius:45px;background:#0a2b6e;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.bar .cal{left:112px;top:19px;width:50px;height:52px}
+.bar .dcol{left:190px;top:7px;color:#fff}
+#p-day{position:static;display:block;font-size:22px;font-weight:500;letter-spacing:1.5px;line-height:1.2}
+#p-date{position:static;display:block;font-size:46px;font-weight:800;line-height:1.05;white-space:nowrap}
+.bar .div{left:433px;top:18px;width:2px;height:54px;background:rgba(255,255,255,.55)}
+.bar .clk{left:482px;top:17px;width:56px;height:56px}
+.bar .tcol{left:560px;top:9px;color:#fff;text-align:center}
+#p-time{position:static;display:block;font-size:44px;font-weight:800;line-height:1.05;white-space:nowrap}
+#p-tz{position:static;display:block;font-size:18px;font-weight:600;line-height:1.1}
+
+.footer{left:0;top:1030px;width:922px;height:122px;background:#fff}
+.footer .fline{left:50px;top:9px;width:830px;height:1px;background:var(--blue);opacity:.55}
+.wa{left:50px;top:17px;height:26px;padding:0 10px 0 8px;border:1px solid var(--blue);border-radius:13px;display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--navy);white-space:nowrap}
+.wa svg{position:static}
+#p-qr{left:52px;top:47px;width:62px;height:62px;background:#fff;object-fit:contain}
+.scan{left:148px;top:58px;height:27px;padding:0 14px;display:flex;align-items:center;font-size:12px;font-weight:700;border-radius:14px}
+.scanarrow{left:120px;top:60px;width:24px;height:20px}
+.fdiv{top:25px;width:1px;height:80px;background:#9fb0d0}
+.ct{left:303px;width:260px;height:32px;display:flex;align-items:center;gap:10px;font-size:12.5px;font-weight:500;color:var(--navy)}
+.ct .ic{position:static;width:30px;height:30px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;flex:none}
+.ct span.t{position:static;white-space:nowrap}
+.tags{left:540px;top:20px;width:260px;display:flex;gap:10px;align-items:center}
+.tag{position:static;display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:var(--navy);white-space:nowrap}
+.tag svg{position:static}
+.tag + .tag{border-left:1px solid #9fb0d0;padding-left:8px}
+.swoosh{left:560px;top:1040px;width:362px;height:112px}
+#p-slogan{left:788px;top:1098px;width:130px;font-family:'Caveat',cursive;font-weight:700;font-size:22px;line-height:1;color:#fff;transform:rotate(-9deg);text-align:center}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ================= PANNEAU D'ÉDITION ================= -->
+<aside class="panel">
+  <h1>Générateur d'affiche « Le Débat »</h1>
+  <p class="sub">Tout est modifiable ; l'aperçu se met à jour en direct.</p>
+
+  <fieldset>
+    <legend>Sujet du débat</legend>
+    <div class="toolbar" id="toolbar">
+      <button type="button" data-cmd="bold" title="Gras"><b>B</b></button>
+      <button type="button" data-cmd="italic" title="Italique"><i>I</i></button>
+      <button type="button" data-cmd="underline" title="Souligné"><u>U</u></button>
+      <span class="sep"></span>
+      <button type="button" class="swatch" data-color="#1e6bdc" style="background:#1e6bdc" title="Bleu"></button>
+      <button type="button" class="swatch" data-color="#0c2a63" style="background:#0c2a63" title="Bleu marine"></button>
+      <button type="button" class="swatch" data-color="#e11d48" style="background:#e11d48" title="Rouge"></button>
+      <button type="button" class="swatch" data-color="#16a34a" style="background:#16a34a" title="Vert"></button>
+      <input type="color" id="customColor" value="#1e6bdc" title="Couleur personnalisée">
+      <span class="sep"></span>
+      <button type="button" data-cmd="justifyLeft" title="Aligner à gauche">⇤</button>
+      <button type="button" data-cmd="justifyCenter" title="Centrer">↔</button>
+      <button type="button" data-cmd="justifyRight" title="Aligner à droite">⇥</button>
+      <span class="sep"></span>
+      <button type="button" data-cmd="undo" title="Annuler">↶</button>
+      <button type="button" data-cmd="redo" title="Rétablir">↷</button>
+      <button type="button" data-cmd="removeFormat" title="Effacer la mise en forme">Tx</button>
+    </div>
+    <div class="editor" id="editor" contenteditable="true" spellcheck="true"></div>
+    <p class="hint">Sélectionnez du texte puis appliquez gras, italique, couleur… La taille s'ajuste automatiquement pour tenir dans l'affiche. Les guillemets « » sont ajoutés automatiquement.</p>
+  </fieldset>
+
+  <fieldset>
+    <legend>En-tête</legend>
+    <label>Titre</label><input type="text" data-k="title">
+    <label>Spécialité</label><input type="text" data-k="specialty">
+  </fieldset>
+
+  <fieldset>
+    <legend>Modérateur</legend>
+    <label>Nom</label><input type="text" data-k="modName">
+    <label>Surnom / précision</label><input type="text" data-k="modNick">
+    <label>Phrase d'invitation</label><input type="text" data-k="invite">
+    <label>Photo</label>
+    <label class="filebtn">📷 Importer une photo<input type="file" id="photoFile" accept="image/*"></label>
+    <button type="button" class="small-link" id="photoClear">Retirer</button>
+    <p class="hint">Idéal : PNG détouré (fond transparent) pour un rendu identique au modèle.</p>
+    <label>Zoom</label><input type="range" data-k="photoScale" min="0.5" max="2" step="0.01">
+    <div class="row">
+      <div><label>Décalage horizontal</label><input type="range" data-k="photoX" min="-300" max="300" step="1"></div>
+      <div><label>Décalage vertical</label><input type="range" data-k="photoY" min="-300" max="300" step="1"></div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Date & heure</legend>
+    <div class="row">
+      <div><label>Date</label><input type="date" data-k="date"></div>
+      <div><label>Heure</label><input type="time" data-k="time"></div>
+    </div>
+    <label>Fuseau (texte affiché)</label><input type="text" data-k="tz">
+  </fieldset>
+
+  <fieldset>
+    <legend>Pied de page</legend>
+    <label>Libellé WhatsApp</label><input type="text" data-k="whatsLabel">
+    <label>Lien de la chaîne WhatsApp (génère le QR)</label><input type="url" data-k="whatsUrl" placeholder="https://whatsapp.com/channel/...">
+    <label class="filebtn" style="margin-top:8px">Ou importer une image de QR<input type="file" id="qrFile" accept="image/*"></label>
+    <button type="button" class="small-link" id="qrClear">Retirer</button>
+    <label>E-mail</label><input type="text" data-k="email">
+    <label>Téléphone</label><input type="text" data-k="phone">
+    <label>LinkedIn</label><input type="text" data-k="linkedin">
+    <label>Trois mots-clés (séparés par des virgules)</label><input type="text" data-k="tags">
+    <label>Slogan</label><input type="text" data-k="slogan">
+  </fieldset>
+
+  <div class="btns">
+    <button class="btn" id="btnPng">⬇ Télécharger en PNG</button>
+    <button class="btn sec" id="btnReset">Réinitialiser</button>
+  </div>
+</aside>
+
+<!-- ================= APERÇU ================= -->
+<main class="preview" id="preview">
+<div class="scaler" id="scaler">
+<div id="stage">
+
+  <div class="circ"></div>
+  <div class="circ-line"></div>
+
+  <!-- Logo -->
+  <svg style="left:58px;top:50px;width:108px;height:100px" viewBox="0 0 108 100">
+    <circle cx="58" cy="44" r="38" fill="none" stroke="#1e6bdc" stroke-width="8"/>
+    <line x1="30" y1="72" x2="8" y2="94" stroke="#1e6bdc" stroke-width="10" stroke-linecap="round"/>
+    <g fill="none" stroke="#1e6bdc" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="45,32 33,44 45,56"/><polyline points="71,32 83,44 71,56"/><line x1="62" y1="28" x2="54" y2="60"/>
+    </g>
+  </svg>
+  <div class="logo-txt">We.<b>info</b></div>
+  <div class="logo-tag">La tech, ensemble.</div>
+
+  <div id="p-title"></div>
+  <div class="ul1"></div>
+  <div class="pill" id="p-specwrap"><span id="p-spec"></span></div>
+
+  <div class="qwrap">
+    <div class="qmark">«</div>
+    <div id="p-subject"></div>
+  </div>
+
+  <div class="ul2"></div>
+  <div class="pill modlabel">MODÉRATEUR</div>
+  <div id="p-name"></div>
+  <div id="p-nick"></div>
+
+  <svg class="chat" viewBox="0 0 56 52"><path d="M6 24C6 12 15 4 28 4s22 8 22 20-9 20-22 20c-3 0-6-.5-8.5-1.5L8 46l3.5-9C8 33.5 6 29 6 24z" fill="none" stroke="#1e6bdc" stroke-width="4" stroke-linejoin="round"/><g stroke="#1e6bdc" stroke-width="3.5" stroke-linecap="round"><line x1="18" y1="19" x2="38" y2="19"/><line x1="18" y1="28" x2="32" y2="28"/></g></svg>
+  <div class="vbar"></div>
+  <div id="p-invite"></div>
+
+  <div class="photo-box"><img id="p-photo" alt=""></div>
+
+  <!-- Barre date / heure -->
+  <div class="bar">
+    <svg class="cal" viewBox="0 0 50 52" fill="none" stroke="#1e6bdc" stroke-width="3.5" stroke-linecap="round"><rect x="3" y="8" width="44" height="40" rx="7"/><line x1="3" y1="20" x2="47" y2="20"/><line x1="14" y1="3" x2="14" y2="12"/><line x1="36" y1="3" x2="36" y2="12"/><g fill="#1e6bdc" stroke="none"><circle cx="14" cy="29" r="2.4"/><circle cx="25" cy="29" r="2.4"/><circle cx="36" cy="29" r="2.4"/><circle cx="14" cy="39" r="2.4"/><circle cx="25" cy="39" r="2.4"/><circle cx="36" cy="39" r="2.4"/></g></svg>
+    <div class="dcol"><span id="p-day"></span><span id="p-date"></span></div>
+    <div class="div"></div>
+    <svg class="clk" viewBox="0 0 56 56" fill="none" stroke="#1e6bdc" stroke-width="4" stroke-linecap="round"><circle cx="28" cy="28" r="24"/><polyline points="28,14 28,29 38,35"/></svg>
+    <div class="tcol"><span id="p-time"></span><span id="p-tz"></span></div>
+  </div>
+
+  <!-- Pied de page -->
+  <div class="footer">
+    <div class="fline"></div>
+    <div class="wa">
+      <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#0c2a63" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20zm4.4-5.9c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.600 6.600 0 0 1-3.300-2.900c-.2-.4.2-.4.700-1.300.1-.1 0-.3 0-.4l-.7-1.700c-.2-.4-.4-.4-.5-.4h-.4c-.2 0-.4.100-.6.300-.2.200-.8.800-.8 1.900s.8 2.200.9 2.300c.1.200 1.600 2.500 3.900 3.500 1.500.6 2 .7 2.800.6.400-.1 1.400-.6 1.600-1.100.2-.5.2-1 .1-1.100-.1-.1-.2-.2-.4-.3z"/></svg>
+      <span id="p-wlabel" style="position:static"></span>
+    </div>
+    <img id="p-qr" alt="QR code">
+    <svg class="scanarrow" viewBox="0 0 24 20" fill="none" stroke="#0c2a63" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 6 H12 Q4 6 4 13"/><polyline points="1,9 4,14 8,9" /></svg>
+    <div class="pill scan">Scan me</div>
+    <div class="fdiv" style="left:295px"></div>
+
+    <div class="ct" style="top:20px"><span class="ic"><svg style="position:static" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><polyline points="2,7 12,13 22,7"/></svg></span><span class="t" id="p-email"></span></div>
+    <div class="ct" style="top:56px"><span class="ic"><svg style="position:static" width="15" height="15" viewBox="0 0 24 24" fill="#fff"><path d="M6.6 10.8a15 15 0 0 0 6.600 6.600l2.200-2.200a1 1 0 0 1 1-.2c1.100.4 2.300.6 3.600.6a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.500a1 1 0 0 1 1 1c0 1.300.2 2.500.6 3.600a1 1 0 0 1-.2 1z"/></svg></span><span class="t" id="p-phone"></span></div>
+    <div class="ct" style="top:92px"><span class="ic"><svg style="position:static" width="15" height="15" viewBox="0 0 24 24" fill="#fff"><path d="M4.500 8.500h3.600V20H4.500zM6.300 3a2.100 2.100 0 1 1 0 4.200 2.100 2.100 0 0 1 0-4.200zM10.200 8.500h3.400v1.600c.5-.9 1.700-1.900 3.500-1.900 3.700 0 4.400 2.400 4.400 5.600V20h-3.600v-5.400c0-1.300 0-3-1.800-3s-2.100 1.400-2.100 2.900V20h-3.600z"/></svg></span><span class="t" id="p-linkedin"></span></div>
+
+    <div class="fdiv" style="left:555px"></div>
+    <div class="tags" id="p-tags" style="left:575px;top:20px"></div>
+  </div>
+
+  <svg class="swoosh" viewBox="0 0 362 112" preserveAspectRatio="none"><defs><linearGradient id="g" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#0a2b6e"/><stop offset="1" stop-color="#1e6bdc"/></linearGradient></defs><path d="M0 112 C130 100 260 70 362 10 L362 112 Z" fill="url(#g)"/></svg>
+  <div id="p-slogan"></div>
+
+</div>
+</div>
+</main>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+
+/* ---------- Valeurs par défaut (= modèle d'origine) ---------- */
+const DEF = {
+  title: "LE DÉBAT",
+  specialty: "Full-Stack",
+  subject: '<div>À l’ère de l’IA, qu’est-ce qui fait encore un <span style="color:#1e6bdc">bon développeur</span> ?</div>',
+  modName: "M. ADOUKO Aristide",
+  modNick: "(l’Oncle Harristed)",
+  invite: "Prépare ton argumentaire et viens défendre ton point de vue.",
+  photo: "", photoScale: 1, photoX: 0, photoY: 0,
+  date: "2026-11-10", time: "21:00", tz: "UTC",
+  whatsLabel: "Notre chaîne WhatsApp",
+  whatsUrl: "https://whatsapp.com/channel/",
+  qrImg: "",
+  email: "contactwe.info@gmail.com",
+  phone: "+225 0100997747",
+  linkedin: "We.info",
+  tags: "Actualités Tech, Communauté, Opportunités",
+  slogan: "Ensemble, plus loin."
+};
+const KEY = 'weinfo-debat-v1';
+let S = Object.assign({}, DEF, (() => { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { return {}; } })());
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch (e) { try { const c = { ...S }; delete c.photo; delete c.qrImg; localStorage.setItem(KEY, JSON.stringify(c)); } catch (e2) {} }
+}
+
+/* Silhouette par défaut (remplacée dès qu'une photo est importée) */
+const PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 900"><g fill="#6f93d6" opacity=".55"><circle cx="210" cy="190" r="110"/><path d="M0 900V560c0-90 70-150 150-165h120c80 15 150 75 150 165v340z"/></g></svg>');
+
+/* ---------- Outils ---------- */
+const TAG_ICONS = [
+  '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1e6bdc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.500c.700.700 1 1.500 1 2.500h6c0-1 .3-1.800 1-2.500A6 6 0 0 0 12 3z"/></svg>',
+  '<svg width="19" height="19" viewBox="0 0 24 24" fill="#1e6bdc"><circle cx="9" cy="8" r="3.200"/><circle cx="17" cy="9" r="2.600"/><path d="M2 20c0-3.500 3-6 7-6s7 2.500 7 6zM16 14.200c3 0 6 1.800 6 5.800h-4.500c0-2.200-.6-4-1.500-5.800z"/></svg>',
+  '<svg width="19" height="19" viewBox="0 0 24 24" fill="#1e6bdc"><path d="M14 3c3.500 0 7 .5 7 .5s.5 3.500.5 7c0 3.500-4.500 7-8 8l-3-3-3-3c1-3.500 4.500-8 6.500-9.500zM15.500 8.500a1.800 1.800 0 1 0 0 3.600 1.800 1.800 0 0 0 0-3.600zM6 14c-2 .5-3 2-3.500 5.500C6 19 7.500 18 8 16zM8 20c.5 0 2-.5 2-.5l-1.500-1.500z"/></svg>'
+];
+
+function fitWidth(el, maxW, base, min = 14) {
+  let s = base; el.style.fontSize = s + 'px';
+  while (el.scrollWidth > maxW && s > min) { s--; el.style.fontSize = s + 'px'; }
+}
+function normalize(html) {
+  const src = document.createElement('div'); src.innerHTML = html;
+  const out = document.createElement('div'); let cur = null;
+  src.childNodes.forEach(n => {
+    if (n.nodeType === 1 && /^(DIV|P|H[1-6]|UL|OL|BLOCKQUOTE)$/.test(n.tagName)) { cur = null; out.appendChild(n.cloneNode(true)); }
+    else { if (!cur) { cur = document.createElement('div'); out.appendChild(cur); } cur.appendChild(n.cloneNode(true)); }
+  });
+  return out.innerHTML;
+}
+const JOURS = ['DIMANCHE','LUNDI','MARDI','MERCREDI','JEUDI','VENDREDI','SAMEDI'];
+
+/* ---------- Rendu ---------- */
+function render() {
+  // Titre & spécialité
+  $('#p-title').textContent = S.title; fitWidth($('#p-title'), 500, 96, 30);
+  $('#p-spec').innerHTML = 'SPÉCIALITÉ : <b></b>';
+  $('#p-spec b').textContent = (S.specialty || '').toUpperCase();
+  fitWidth($('#p-spec'), 420, 31, 14);
+
+  // Sujet (WYSIWYG)
+  const subj = $('#p-subject');
+  subj.innerHTML = normalize(S.subject);
+  let s = 54; subj.style.fontSize = s + 'px';
+  while (subj.scrollHeight > subj.clientHeight + 1 && s > 16) { s--; subj.style.fontSize = s + 'px'; }
+
+  // Modérateur
+  $('#p-name').textContent = S.modName; fitWidth($('#p-name'), 440, 40, 16);
+  $('#p-nick').textContent = S.modNick; fitWidth($('#p-nick'), 440, 30, 14);
+  $('#p-invite').textContent = S.invite;
+
+  // Photo
+  const ph = $('#p-photo');
+  ph.src = S.photo || PLACEHOLDER;
+  ph.style.transform = `translate(calc(-50% + ${S.photoX}px), ${S.photoY}px) scale(${S.photoScale})`;
+
+  // Date / heure
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(S.date || '');
+  if (m) {
+    const d = new Date(+m[1], +m[2] - 1, +m[3]);
+    $('#p-day').textContent = JOURS[d.getDay()];
+    $('#p-date').textContent = `${m[3]}/${m[2]}/${m[1]}`;
+  } else { $('#p-day').textContent = ''; $('#p-date').textContent = '--/--/----'; }
+  const t = /^(\d{2}):(\d{2})/.exec(S.time || '');
+  $('#p-time').textContent = t ? `${t[1]} H ${t[2]}` : '-- H --';
+  $('#p-tz').textContent = S.tz;
+
+  // Pied de page
+  $('#p-wlabel').textContent = S.whatsLabel;
+  $('#p-email').textContent = S.email;
+  $('#p-phone').textContent = S.phone;
+  $('#p-linkedin').textContent = S.linkedin;
+  $('#p-slogan').textContent = S.slogan;
+  const tg = $('#p-tags'); tg.innerHTML = '';
+  (S.tags || '').split(',').map(x => x.trim()).filter(Boolean).slice(0, 3).forEach((txt, i) => {
+    const el = document.createElement('div'); el.className = 'tag';
+    el.innerHTML = TAG_ICONS[i] + '<span style="position:static"></span>';
+    el.querySelector('span').textContent = txt; tg.appendChild(el);
+  });
+
+  // QR
+  const qr = $('#p-qr');
+  if (S.qrImg) qr.src = S.qrImg;
+  else if (window.qrcode && S.whatsUrl) {
+    try { const q = qrcode(0, 'M'); q.addData(S.whatsUrl); q.make(); qr.src = q.createDataURL(6, 0); } catch (e) {}
+  }
+}
+
+/* ---------- Liaison des champs ---------- */
+function syncInputs() {
+  document.querySelectorAll('[data-k]').forEach(el => { el.value = S[el.dataset.k]; });
+  $('#editor').innerHTML = S.subject;
+}
+document.querySelectorAll('[data-k]').forEach(el => {
+  el.addEventListener('input', () => {
+    const k = el.dataset.k;
+    S[k] = el.type === 'range' ? parseFloat(el.value) : el.value;
+    if (k === 'whatsUrl') S.qrImg = S.qrImg; // le QR importé reste prioritaire
+    render(); save();
+  });
+});
+
+/* ---------- Éditeur WYSIWYG ---------- */
+const ed = $('#editor');
+try { document.execCommand('defaultParagraphSeparator', false, 'div'); } catch (e) {}
+ed.addEventListener('input', () => { S.subject = ed.innerHTML; render(); save(); });
+ed.addEventListener('paste', e => {            // collage en texte brut
+  e.preventDefault();
+  const txt = (e.clipboardData || window.clipboardData).getData('text/plain');
+  document.execCommand('insertText', false, txt);
+});
+let savedRange = null;
+document.addEventListener('selectionchange', () => {
+  const sel = getSelection();
+  if (sel.rangeCount && ed.contains(sel.anchorNode)) savedRange = sel.getRangeAt(0).cloneRange();
+});
+function restore() { if (!savedRange) return; ed.focus(); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(savedRange); }
+function exec(cmd, val) {
+  restore();
+  try { document.execCommand('styleWithCSS', false, true); } catch (e) {}
+  document.execCommand(cmd, false, val || null);
+  S.subject = ed.innerHTML; render(); save();
+}
+$('#toolbar').addEventListener('mousedown', e => { if (e.target.closest('button')) e.preventDefault(); });
+$('#toolbar').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.cmd) exec(b.dataset.cmd);
+  else if (b.dataset.color) exec('foreColor', b.dataset.color);
+});
+$('#customColor').addEventListener('input', e => exec('foreColor', e.target.value));
+
+/* ---------- Photo & QR (import local) ---------- */
+function readFile(file, cb) { if (!file) return; const r = new FileReader(); r.onload = () => cb(r.result); r.readAsDataURL(file); }
+$('#photoFile').addEventListener('change', e => readFile(e.target.files[0], url => {
+  S.photo = url; S.photoScale = 1; S.photoX = 0; S.photoY = 0; syncInputs(); render(); save();
+}));
+$('#photoClear').addEventListener('click', () => { S.photo = ''; render(); save(); });
+$('#qrFile').addEventListener('change', e => readFile(e.target.files[0], url => { S.qrImg = url; render(); save(); }));
+$('#qrClear').addEventListener('click', () => { S.qrImg = ''; render(); save(); });
+
+/* ---------- Export PNG ---------- */
+$('#btnPng').addEventListener('click', async () => {
+  const btn = $('#btnPng'), stage = $('#stage'), old = btn.textContent;
+  btn.textContent = 'Génération…'; btn.disabled = true;
+  const prev = stage.style.transform; stage.style.transform = 'none';
+  try {
+    await document.fonts.ready;
+    const c = await html2canvas(stage, { scale: 2, backgroundColor: '#f7f8fb', useCORS: true, width: 922, height: 1152 });
+    const a = document.createElement('a');
+    a.download = 'debat-weinfo.png'; a.href = c.toDataURL('image/png'); a.click();
+  } catch (e) { alert("Export impossible : " + e.message); }
+  stage.style.transform = prev; btn.textContent = old; btn.disabled = false;
+});
+
+/* ---------- Réinitialiser ---------- */
+$('#btnReset').addEventListener('click', () => {
+  if (!confirm("Remettre tous les champs aux valeurs d'origine ?")) return;
+  S = Object.assign({}, DEF); syncInputs(); render(); save();
+});
+
+/* ---------- Mise à l'échelle de l'aperçu ---------- */
+function fit() {
+  const pv = $('#preview');
+  const sc = Math.min(1, (pv.clientWidth - 40) / 922, (window.innerHeight - 40) / 1152);
+  const k = Math.max(sc, 0.3);
+  $('#stage').style.transform = `scale(${k})`;
+  const sc_ = $('#scaler'); sc_.style.width = 922 * k + 'px'; sc_.style.height = 1152 * k + 'px';
+}
+window.addEventListener('resize', fit);
+
+/* ---------- Démarrage ---------- */
+syncInputs();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { render(); fit(); });
+render(); fit();
+</script>
+</body>
+</html>
