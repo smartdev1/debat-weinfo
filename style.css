@@ -303,6 +303,7 @@ input[type="range"] {
   background: var(--blue);
   color: #fff;
   border-radius: 999px;
+  z-index: 1000;
 }
 #p-specwrap {
   left: 50px;
